@@ -1,5 +1,7 @@
 package sample;
 
+import com.gtranslate.Language;
+import com.gtranslate.Translator;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleStringProperty;
@@ -9,7 +11,14 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
@@ -65,8 +74,24 @@ public class Controller implements Initializable {
     }
 
     @FXML
-    public void translate(ActionEvent actionEvent) {
-        System.out.println(getTextToTranslate());
-        setTranslatedText(getTextToTranslate());
+    public void translate(ActionEvent actionEvent) throws IOException {
+
+        // INSERT YOU URL HERE
+        String urlStr = "https://script.google.com/macros/s/AKfycby4pL1DmY4fHsw_aWNBHpj_EYsmWp87ufzvV12tKlRrLpypR48/exec" +
+                "?q=" + URLEncoder.encode(getTextToTranslate(), StandardCharsets.UTF_8) +
+                "&target=" + "hu" +
+                "&source=" + "en";
+        URL url = new URL(urlStr);
+        StringBuilder response = new StringBuilder();
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestProperty("User-Agent", "Mozilla/5.0");
+        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        String inputLine;
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
+        }
+        in.close();
+        String trasnlatedText = response.toString();
+        setTranslatedText(trasnlatedText);
     }
 }
